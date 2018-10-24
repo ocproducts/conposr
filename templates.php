@@ -1,6 +1,6 @@
 <?php /*
 
- Conposr (Composr-lite framework for standalone projects)
+ Conposr Framework (a Composr-lite designed for standalone projects)
  Copyright (c) ocProducts, 2004-2018
 
 */
@@ -8,7 +8,7 @@
 /**
  * @license    http://opensource.org/licenses/cpal_1.0 Common Public Attribution License
  * @copyright  ocProducts Ltd
- * @package    Conposr
+ * @package    conposr
  */
 
 function globalise($title, $middle)
