@@ -21,7 +21,9 @@ $table_prefix = get_option('table_prefix');
 require_code('database_drivers/' . $db_type);
 $static_ob = new $db_type();
 $GLOBALS['DB_STATIC_OBJECT'] = $static_ob;
-$GLOBALS['SITE_DB'] = new DatabaseConnector($db_name, $db_host, $db_user, $db_password, $table_prefix, $static_ob);
+if ($db_name !== null) {
+    $GLOBALS['SITE_DB'] = new DatabaseConnector($db_name, $db_host, $db_user, $db_password, $table_prefix, $static_ob);
+}
 
 function db_string_equal_to($attribute, $compare)
 {
