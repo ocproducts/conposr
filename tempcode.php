@@ -236,6 +236,10 @@ function do_template($codename, $parameters = null)
 
     $tcp_path = get_file_base() . '/conposr/caches/templates/' . $codename . '.tcp';
 
+    if (!is_dir(dirname($tcp_path))) {
+        mkdir(dirname($tcp_path), 0777, true);
+    }
+
     if (filemtime($file_path) < filemtime($tcp_path)) {
         $_data = new Tempcode();
         $test = $_data->from_assembly_executed($tcp_path);
