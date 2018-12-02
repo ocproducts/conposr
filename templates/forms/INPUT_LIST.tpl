@@ -1,0 +1,12 @@
+<select name="{NAME*}"{+START,IF_PASSED_AND_TRUE,REQUIRED} required="required"{+END}{+START,IF_PASSED_AND_TRUE,MULTIPLE} multiple="multiple"{+END}{+START,IF_PASSED,SIZE} size="{SIZE*}"{+END}{+START,IF_PASSED,CLASS} class="{CLASS*}"{+END}{+START,IF_PASSED_AND_TRUE,DISABLED} disabed="disabled"{+END}{+START,IF_PASSED,TABINDEX} tabindex="{TABINDEX*}"{+END}{+START,IF_PASSED,EXTRA} {EXTRA}{+END}>
+	{+START,IF_PASSED,LIST}
+		{LIST}
+	{+END}
+	{+START,IF_PASSED,LIST_ARRAY}
+		{+START,LOOP,LIST_ARRAY}
+			<option value="{_loop_key*}"{+START,IF_PASSED,VALUE}{+START,IF,{$EQ,{VALUE},{_loop_key}}} selected="selected"{+END}{+END}>{_loop_var*}</option>
+		{+END}
+	{+END}
+</select>
+
+{+START,INCLUDE,forms/_INPUT_FIELD}{+END}

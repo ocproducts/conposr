@@ -22,6 +22,7 @@ require_code('templates');
 require_code('temporal');
 require_code('urls');
 require_code('users');
+require_code('web_resources');
 
 function require_code($codename, $light_exit = false, $has_custom = null)
 {

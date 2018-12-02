@@ -872,6 +872,21 @@ function ecv_INC($escaped, $param)
     return $value;
 }
 
+function ecv_DEC($escaped, $param)
+{
+    $value = '';
+
+    if (isset($param[0])) {
+        global $TEMPCODE_SETGET;
+        if (!isset($TEMPCODE_SETGET[$param[0]])) {
+            $TEMPCODE_SETGET[$param[0]] = '0';
+        }
+        $TEMPCODE_SETGET[$param[0]] = strval(intval($TEMPCODE_SETGET[$param[0]]) - 1);
+    }
+
+    return $value;
+}
+
 function ecv_PREG_REPLACE($escaped, $param)
 {
     $value = '';
@@ -908,6 +923,41 @@ function ecv_MIN($escaped, $param)
     return $value;
 }
 
+function ecv_ADD($escaped, $param)
+{
+    $_value = 0;
+
+    foreach ($param as $p) {
+        $_value += floatval(str_replace(',', '', $p));
+    }
+
+    $value = float_to_raw_string($_value);
+
+    return $value;
+}
+
+function ecv_SUBTRACT($escaped, $param)
+{
+    $value = '';
+
+    if (isset($param[0])) {
+        $_value = 0;
+
+        foreach ($param as $i => $p) {
+            $_p = floatval(str_replace(',', '', $p));
+            if ($i == 0) {
+                $_value = $_p;
+            } else {
+                $_value -= $_p;
+            }
+        }
+
+        $value = float_to_raw_string($_value);
+    }
+
+    return $value;
+}
+
 function ecv_DIV_FLOAT($escaped, $param)
 {
     $value = '';
@@ -930,6 +980,19 @@ function ecv_DIV($escaped, $param)
             $value = 'divide-by-zero';
         } else {
             $value = strval(intval(floor(floatval($param[0]) / floatval($param[1]))));
+        }
+    }
+
+    return $value;
+}
+
+function ecv_REM($escaped, $param)
+{
+    $value = '';
+
+    if (isset($param[1])) {
+        if (intval($param[1]) != 0) {
+            $value = strval(intval($param[0]) % intval($param[1]));
         }
     }
 
@@ -1023,6 +1086,40 @@ function ecv_SUBSTR($escaped, $param)
 
     if (isset($param[1])) {
         $value = cms_mb_substr($param[0], intval($param[1]), isset($param[2]) ? intval($param[2]) : strlen($param[0]));
+    }
+
+    if ($escaped !== array()) {
+        apply_tempcode_escaping($escaped, $value);
+    }
+    return $value;
+}
+
+function ecv_AT($escaped, $param)
+{
+    $value = '';
+
+    if (isset($param[1])) {
+        $value = cms_mb_substr($param[0], intval($param[1]), 1);
+    }
+
+    if ($escaped !== array()) {
+        apply_tempcode_escaping($escaped, $value);
+    }
+    return $value;
+}
+
+function ecv_ESCAPE($escaped, $param)
+{
+    $value = '';
+
+    if (isset($param[0])) {
+        $d_escaping = array(isset($param[1]) ? constant($param[1]) : ENTITY_ESCAPED);
+        for ($i = 0; $i < max(1, array_key_exists(2, $param) ? intval($param[2]) : 1); $i++) {
+            if (is_string($param[0])) {
+                apply_tempcode_escaping($d_escaping, $param[0]);
+            }
+        }
+        $value = $param[0];
     }
 
     if ($escaped !== array()) {
@@ -1251,6 +1348,40 @@ function ecv_NUMBER_FORMAT($escaped, $param)
     if (isset($param[0])) {
         $value = integer_format(intval($param[0]));
     }
+
+    if ($escaped !== array()) {
+        apply_tempcode_escaping($escaped, $value);
+    }
+    return $value;
+}
+
+function ecv_CSS_TEMPCODE($escaped, $param)
+{
+    $value = '';
+
+    global $CSS_REQUIRED;
+    $_value = new Tempcode();
+    foreach ($CSS_REQUIRED as $code) {
+        $_value->attach(do_template('CSS_NEED', array('CODE' => $code)));
+    }
+    $value = $_value->evaluate();
+
+    if ($escaped !== array()) {
+        apply_tempcode_escaping($escaped, $value);
+    }
+    return $value;
+}
+
+function ecv_JAVASCRIPT_TEMPCODE($escaped, $param)
+{
+    $value = '';
+
+    global $JAVASCRIPT_REQUIRED;
+    $_value = new Tempcode();
+    foreach ($JAVASCRIPT_REQUIRED as $code) {
+        $_value->attach(do_template('JAVASCRIPT_NEED', array('CODE' => $code)));
+    }
+    $value = $_value->evaluate();
 
     if ($escaped !== array()) {
         apply_tempcode_escaping($escaped, $value);

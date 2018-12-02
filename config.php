@@ -11,11 +11,8 @@
  * @package    conposr
  */
 
-global $CONFIG_OPTIONS;
-if (!isset($CONFIG_OPTIONS)) {
-    $CONFIG_OPTIONS = array();
-}
-$CONFIG_OPTIONS += array(
+global $CONFIG_OPTIONS, $SITE_INFO;
+$CONFIG_OPTIONS = array(
     'date_format' => 'd/m/Y',
     'time_format' => 'H:i:s',
     'timezone' => date_default_timezone_get(),
@@ -34,6 +31,9 @@ $CONFIG_OPTIONS += array(
 
     'base_url' => null,
 );
+if (isset($SITE_INFO)) {
+    $CONFIG_OPTIONS += $SITE_INFO;
+}
 
 $error_log = get_option('error_log');
 if ($error_log !== null) {
