@@ -99,15 +99,10 @@ class Database_Static_mysqli extends Database_super_mysql
         }
 
         if ($get_insert_id) {
-            if (strtoupper(substr($query, 0, 7)) === 'UPDATE ') {
+            if ((strtoupper(substr($query, 0, 7)) === 'UPDATE ') || (strtoupper(substr($query, 0, 7)) === 'DELETE ')) {
                 return mysqli_affected_rows($db);
             }
             $ins = mysqli_insert_id($db);
-            if ($ins === 0) {
-                $table = substr($query, 12, strpos($query, ' ', 12) - 12);
-                $rows = $this->db_query('SELECT MAX(id) AS x FROM ' . $table, $db_parts, 1, 0, false, false);
-                return $rows[0]['x'];
-            }
             return $ins;
         }
 

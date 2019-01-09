@@ -28,10 +28,10 @@ function warn_exit($text)
     _generic_exit($text, 'WARN_SCREEN');
 }
 
-function fatal_exit($text)
+function fatal_exit($text, $_trace = null)
 {
     require_code('failure');
-    _fatal_exit($text);
+    _fatal_exit($text, $_trace = null);
 }
 
 function form_input_hidden($name, $value)

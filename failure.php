@@ -112,7 +112,7 @@ function _generic_exit($text, $template)
     exit();
 }
 
-function _fatal_exit($text)
+function _fatal_exit($text, $_trace)
 {
     cms_ob_end_clean(); // Emergency output, potentially, so kill off any active buffer
 
@@ -129,7 +129,7 @@ function _fatal_exit($text)
 
     $may_see_trace = may_see_stack_dumps();
     if ($may_see_trace) {
-        $trace = get_html_trace();
+        $trace = get_html_trace($_trace);
     } else {
         $trace = '';
     }
@@ -151,9 +151,11 @@ function may_see_stack_dumps()
     return (is_admin()) || (get_option('dev_ip') == get_ip_address());
 }
 
-function get_html_trace($message)
+function get_html_trace($message, $_trace = null)
 {
-    $_trace = debug_backtrace();
+    if ($_trace === null) {
+        $_trace = debug_backtrace();
+    }
     $trace = '<h2>Stack trace&hellip;</h2>';
     foreach ($_trace as $i => $stage) {
         if ($i > 20) {

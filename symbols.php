@@ -34,6 +34,16 @@ function ecv($escaped, $type, $name, $param)
                 apply_tempcode_escaping($escaped, $value);
             }
         } else {
+            // Support for PHP-style enums (FOO_BAR__X_Y --> FooBar::XY)
+            if (strpos($name, '__') !== false) {
+                $parts = explode('__', $name, 2);
+                $class = str_replace('_', '', $parts[0]);
+                if (class_exists($class)) { // PHP is not case sensitive. Also autoloading will work here.
+                    $property = str_replace('_', '', $parts[1]);
+                    return $class::$property;
+                }
+            }
+
             fatal_exit('Missing symbol ' . $name);
         }
 

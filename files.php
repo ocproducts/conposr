@@ -86,3 +86,36 @@ function cms_file_put_contents_safe($path, $contents)
         fatal_exit('Could not save file ' . $path . ', out of disk space?');
     }
 }
+
+function clean_file_size($bytes)
+{
+    if ($bytes < 0) {
+        return '-' . clean_file_size(-$bytes);
+    }
+
+    if (is_null($bytes)) {
+        return do_lang('UNKNOWN') . ' bytes';
+    }
+    if ($bytes == 2147483647) {
+        return do_lang('UNKNOWN') . ' bytes';
+    }
+    if (floatval($bytes) > 2.0 * 1024.0 * 1024.0 * 1024.0) {
+        return strval(intval(round(floatval($bytes) / 1024.0 / 1024.0 / 1024.0))) . ' GB';
+    }
+    if (floatval($bytes) > 1024.0 * 1024.0 * 1024.0) {
+        return float_format(floatval($bytes) / 1024.0 / 1024.0 / 1024.0, 2) . ' GB';
+    }
+    if (floatval($bytes) > 2.0 * 1024.0 * 1024.0) {
+        return strval(intval(round(floatval($bytes) / 1024.0 / 1024.0))) . ' MB';
+    }
+    if (floatval($bytes) > 1024.0 * 1024.0) {
+        return float_format(floatval($bytes) / 1024.0 / 1024.0, 2) . ' MB';
+    }
+    if (floatval($bytes) > 2.0 * 1024.0) {
+        return strval(intval(round(floatval($bytes) / 1024.0))) . ' KB';
+    }
+    if (floatval($bytes) > 1024.0) {
+        return float_format(floatval($bytes) / 1024.0, 2) . ' KB';
+    }
+    return strval($bytes) . ' Bytes';
+}
