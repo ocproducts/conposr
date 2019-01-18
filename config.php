@@ -23,10 +23,10 @@ $CONFIG_OPTIONS = array(
     'admin_log' => get_file_base() . '/lib/conposr/admin.log',
 
     'db_type' => 'mysqli',
-    'db_site_host' => 'localhost',
-    'db_site' => null,
-    'db_site_user' => 'root',
-    'db_site_password' => '',
+    'db_host' => 'localhost',
+    'db_name' => null,
+    'db_user' => 'root',
+    'db_password' => '',
     'table_prefix' => '',
 
     'base_url' => null,

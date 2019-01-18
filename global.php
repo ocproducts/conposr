@@ -13,11 +13,13 @@
 
 error_reporting(E_ALL);
 set_error_handler('composr_error_handler');
+if (function_exists('error_get_last')) {
+    register_shutdown_function('catch_fatal_errors');
+}
 
 define('URL_CONTENT_REGEXP', '\w\-\x80-\xFF'); // PHP is done using ASCII (don't use the 'u' modifier). Note this doesn't include dots, this is intentional as they can cause problems in filenames
 
 require_code('config');
-require_code('database');
 require_code('files');
 require_code('tempcode');
 require_code('templates');
@@ -25,6 +27,7 @@ require_code('temporal');
 require_code('urls');
 require_code('users');
 require_code('web_resources');
+require_code('database');
 
 function require_code($codename)
 {
@@ -73,6 +76,21 @@ function filter_naughty_harsh($in, $preg = false)
     }
     warn_exit('Insecure parameter, ' . $in);
     return ''; // trick to make linters happy
+}
+
+function catch_fatal_errors()
+{
+    $error = error_get_last();
+
+    if ($error !== null) {
+        switch ($error['type']) {
+            case E_ERROR:
+            case E_CORE_ERROR:
+            case E_COMPILE_ERROR:
+            case E_USER_ERROR:
+                composr_error_handler($error['type'], $error['message'], $error['file'], $error['line']);
+        }
+    }
 }
 
 function composr_error_handler($errno, $errstr, $errfile, $errline)
