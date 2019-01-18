@@ -335,7 +335,7 @@ class DatabaseConnector
     public function query_delete($table, $where_map = null, $end = '', $max = null, $start = null, $fail_ok = false)
     {
         if ($where_map === null) {
-            if (($end === '') && ($max === null) && ($start === null) && (db_supports_truncate_table($GLOBALS['SITE_DB']->connection))) {
+            if (($end === '') && ($max === null) && ($start === null)) {
                 $this->_query('TRUNCATE ' . $this->table_prefix . $table, null, null, $fail_ok);
             } else {
                 $this->_query('DELETE FROM ' . $this->table_prefix . $table . ' ' . $end, $max, $start, $fail_ok);

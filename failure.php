@@ -27,7 +27,6 @@ function _composr_error_handler($errno, $errstr, $errfile, $errline)
         case E_COMPILE_ERROR:
         case E_ERROR:
             $type = 'error';
-            $syslog_type = LOG_ERR;
             break;
         case -123: // Hacked in for the memtrack extension, which was buggy
         case E_CORE_WARNING:
@@ -35,12 +34,10 @@ function _composr_error_handler($errno, $errstr, $errfile, $errline)
         case E_USER_WARNING:
         case E_WARNING:
             $type = 'warning';
-            $syslog_type = LOG_WARNING;
             break;
         case E_USER_NOTICE:
         case E_NOTICE:
             $type = 'notice';
-            $syslog_type = LOG_NOTICE;
             break;
         case E_STRICT:
         case E_DEPRECATED:
@@ -50,19 +47,6 @@ function _composr_error_handler($errno, $errstr, $errfile, $errline)
     }
 
     $errstr = _sanitise_error_msg($errstr);
-
-    // Generate error message
-    $outx = '<strong>' . strtoupper($type) . '</strong> [' . strval($errno) . '] ' . $errstr . ' in ' . $errfile . ' on line ' . strval($errline) . '<br />' . "\n";
-    if (class_exists('Tempcode')) {
-        if ($GLOBALS['SUPPRESS_ERROR_DEATH']) {
-            $trace = new Tempcode();
-        } else {
-            $trace = get_html_trace();
-        }
-        $out = $outx . $trace->evaluate();
-    } else {
-        $out = $outx;
-    }
 
     // Put into error log
     if (get_param_integer('keep_fatalistic', 0) == 0) {
@@ -77,7 +61,7 @@ function _composr_error_handler($errno, $errstr, $errfile, $errline)
 function _sanitise_error_msg($text)
 {
     // Strip paths, for security reasons
-    return str_replace(array(get_custom_file_base() . '/', get_file_base() . '/'), array('', ''), $text);
+    return str_replace(array(get_file_base() . '/', get_file_base() . '/'), array('', ''), $text);
 }
 
 function _generic_exit($text, $template)
@@ -151,7 +135,7 @@ function may_see_stack_dumps()
     return (is_admin()) || (get_option('dev_ip') == get_ip_address());
 }
 
-function get_html_trace($message, $_trace = null)
+function get_html_trace($_trace = null)
 {
     if ($_trace === null) {
         $_trace = debug_backtrace();

@@ -14,6 +14,8 @@
 error_reporting(E_ALL);
 set_error_handler('composr_error_handler');
 
+define('URL_CONTENT_REGEXP', '\w\-\x80-\xFF'); // PHP is done using ASCII (don't use the 'u' modifier). Note this doesn't include dots, this is intentional as they can cause problems in filenames
+
 require_code('config');
 require_code('database');
 require_code('files');
@@ -24,7 +26,7 @@ require_code('urls');
 require_code('users');
 require_code('web_resources');
 
-function require_code($codename, $light_exit = false, $has_custom = null)
+function require_code($codename)
 {
     require_once(get_file_base() . '/conposr/' . $codename . '.php');
 }
@@ -41,6 +43,10 @@ function get_file_base()
 function filter_naughty($in, $preg = false)
 {
     if ((strpos($in, "\0") !== false) && (strpos($in, '..') !== false)) {
+        if ($preg) {
+            return str_replace('.', '', $in);
+        }
+
         http_response_code(400);
         warn_exit('Invalid URL');
     }
@@ -174,7 +180,7 @@ function post_param_integer($name, $default = false)
     return $reti;
 }
 
-function get_param_integer($name, $default = false, $not_string_ok = false)
+function get_param_integer($name, $default = false)
 {
     $m_default = ($default === false) ? false : (isset($default) ? (($default === 0) ? '0' : strval($default)) : '');
     $ret = __param($_GET, $name, $m_default, true);
@@ -200,25 +206,6 @@ function get_param_integer($name, $default = false, $not_string_ok = false)
         warn_exit($label . ' is too small/big');
     }
     return $reti;
-}
-
-function cms_mb_strlen($in)
-{
-    return mb_strlen($in, 'utf-8');
-}
-
-function cms_mb_substr($in, $from, $amount = null)
-{
-    if ($amount === null) {
-        $amount = cms_mb_strlen($in) - $from;
-    }
-
-    if ($in == '' || strlen($in) == $from)
-    {
-        return '';
-    }
-
-    return mb_substr($in, $from, $amount, 'utf-8');
 }
 
 function float_to_raw_string($num, $decs_wanted = 2, $only_needed_decs = false)
@@ -635,9 +622,11 @@ function get_bot_type($agent = null)
     }
     $done_detect = true;
 
-    $user_agent = $_SERVER['HTTP_USER_AGENT'];
+    if ($agent === null) {
+        $agent = $_SERVER['HTTP_USER_AGENT'];
+    }
 
-    $user_agent = strtolower($user_agent);
+    $agent = strtolower($agent);
 
     $bots = array(
         'zyborg' => 'Looksmart',
@@ -704,7 +693,7 @@ function strip_html($in)
     $in = preg_replace($search, '', $in);
     $in = str_replace('><', '> <', $in);
     $in = strip_tags($in);
-    return html_entity_decode($in, ENT_QUOTES, get_charset());
+    return html_entity_decode($in, ENT_QUOTES);
 }
 
 function is_email_address($string)
@@ -714,4 +703,84 @@ function is_email_address($string)
     }
 
     return (preg_match('#^[\w\.\-\+]+@[\w\.\-]+$#', $string) != 0); // Put "\.[a-zA-Z0-9_\-]+" before $ to ensure a two+ part domain
+}
+
+function cms_ob_end_clean()
+{
+    while (ob_get_level() > 0) {
+        if (!@ob_end_clean()) {
+            @ini_set('zlib.output_compression', '0');
+            break;
+        }
+    }
+}
+
+function cms_mb_strlen($in)
+{
+    if (function_exists('mb_strlen')) {
+        return @mb_strlen($in, 'utf-8'); // @ is because there could be invalid unicode involved
+    }
+    if (function_exists('iconv_strlen')) {
+        return @iconv_strlen($in, 'utf-8');
+    }
+    return strlen($in);
+}
+
+function cms_mb_substr($in, $from, $amount = null)
+{
+    if ($amount === null) {
+        $amount = cms_mb_strlen($in) - $from;
+    }
+
+    if ($in == '' || strlen($in) == $from)
+    {
+        return ''; // Workaround PHP bug/inconsistency (https://bugs.php.net/bug.php?id=72320)
+    }
+
+    if (function_exists('iconv_substr')) {
+        return @iconv_substr($in, $from, $amount, 'utf-8');
+    }
+    if (function_exists('mb_substr')) {
+        return @mb_substr($in, $from, $amount, 'utf-8');
+    }
+
+    $ret = substr($in, $from, $amount);
+    $end = ord(substr($ret, -1));
+    if (($end >= 192) && ($end <= 223)) {
+        $ret .= substr($in, $from + $amount, 1);
+    }
+    if ($from != 0) {
+        $start = ord(substr($ret, 0, 1));
+        if (($start >= 192) && ($start <= 223)) {
+            $ret = substr($in, $from - 1, 1) . $ret;
+        }
+    }
+    return $ret;
+}
+
+function cms_mb_ucwords($in)
+{
+    if (function_exists('mb_convert_case')) {
+        return @mb_convert_case($in, MB_CASE_TITLE);
+    }
+
+    return ucwords($in);
+}
+
+function cms_mb_strtolower($in)
+{
+    if (function_exists('mb_strtolower')) {
+        return @mb_strtolower($in);
+    }
+
+    return strtolower($in);
+}
+
+function cms_mb_strtoupper($in)
+{
+    if (function_exists('mb_strtoupper')) {
+        return @mb_strtoupper($in);
+    }
+
+    return strtoupper($in);
 }

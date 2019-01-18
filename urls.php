@@ -20,7 +20,7 @@ function tacit_https()
     return $tacit_https;
 }
 
-function get_base_url($https = null, $zone_for = null)
+function get_base_url()
 {
     $base_url = get_option('base_url');
     if ($base_url === null) {

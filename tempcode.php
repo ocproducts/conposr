@@ -19,6 +19,7 @@ define('UL_ESCAPED', 6); // URL
 define('JSHTML_ESCAPED', 7); // JavaScript </ -> <\/
 define('NL2_ESCAPED', 8); // New lines go to \n
 define('ID_ESCAPED', 9); // Strings to to usable IDs
+define('NAUGHTY_ESCAPED', 10); // Used as a JavaScript variable name, for example... to prevent code injection
 
 define('TC_SYMBOL', 0);
 define('TC_KNOWN', 1); // Either Tempcode or string
@@ -191,11 +192,13 @@ function apply_tempcode_escaping($escaped, &$value)
         } elseif ($escape === NL2_ESCAPED) {
             $value = str_replace(array("\r", "\n"), array('', '\n'), $value);
         } elseif ($escape === UL_ESCAPED) {
-            $value = cms_url_encode($value);
+            $value = urlencode($value);
         } elseif ($escape === JSHTML_ESCAPED) {
             $value = str_replace(']]>', ']]\'+\'>', str_replace('</', '<\/', $value));
         } elseif ($escape === ID_ESCAPED) {
             $value = fix_id($value);
+        } elseif ($escape === NAUGHTY_ESCAPED) {
+            $value = filter_naughty_harsh($value, true);
         }
     }
 
@@ -216,11 +219,13 @@ function apply_tempcode_escaping_inline($escaped, $value)
         } elseif ($escape === NL2_ESCAPED) {
             $value = str_replace(array("\r", "\n"), array('', '\n'), $value);
         } elseif ($escape === UL_ESCAPED) {
-            $value = cms_url_encode($value);
+            $value = urlencode($value);
         } elseif ($escape === JSHTML_ESCAPED) {
             $value = str_replace(']]>', ']]\'+\'>', str_replace('</', '<\/', $value));
         } elseif ($escape === ID_ESCAPED) {
             $value = fix_id($value);
+        } elseif ($escape === NAUGHTY_ESCAPED) {
+            $value = filter_naughty_harsh($value, true);
         }
     }
 
@@ -242,7 +247,7 @@ function do_template($codename, $parameters = null)
 
     if (filemtime($file_path) < filemtime($tcp_path)) {
         $_data = new Tempcode();
-        $test = $_data->from_assembly_executed($tcp_path);
+        $_data->from_assembly_executed($tcp_path);
     } else {
         require_code('tempcode_compiler');
         $_data = _do_template($codename, $file_path, $tcp_path);
@@ -273,7 +278,6 @@ class Tempcode
         $this->cached_output = null;
 
         if (!isset($details)) {
-            $this->preprocessable_bits = array();
             $this->seq_parts = array();
             $this->code_to_preexecute = array();
         } else {
@@ -305,7 +309,7 @@ class Tempcode
     {
         $this->cached_output = null;
         require_code('tempcode_compiler');
-        $temp = template_to_tempcode(substr($code, $pos, $len - $pos), 0, false, '');
+        $temp = template_to_tempcode(substr($code, $pos, $len - $pos), 0, '');
         $this->code_to_preexecute = $temp->code_to_preexecute;
         $this->seq_parts = $temp->seq_parts;
     }
@@ -484,7 +488,7 @@ class Tempcode
         return $this->evaluate();
     }
 
-    public function evaluate($current_lang = null)
+    public function evaluate()
     {
         if (isset($this->cached_output)) {
             return $this->cached_output;
@@ -554,7 +558,7 @@ function recall_named_function($id, $parameters, $code)
     return $GLOBALS[$k];
 }
 
-function debug_eval($code, &$tpl_funcs = null, $parameters = null, $cl = null)
+function debug_eval($code, &$tpl_funcs = null, $parameters = null)
 {
     global $KEEP_TPL_FUNCS, $FULL_RESET_VAR_CODE, $RESET_VAR_CODE;
 

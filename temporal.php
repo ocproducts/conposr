@@ -13,7 +13,7 @@
 
 date_default_timezone_set(get_option('timezone'));
 
-function get_timezoned_date($timestamp, $include_time = true, $use_contextual_dates = false)
+function get_timezoned_date($timestamp, $include_time = true)
 {
     $date = date(get_option('date_format', $timestamp));
 

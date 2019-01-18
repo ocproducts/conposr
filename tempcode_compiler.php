@@ -138,9 +138,6 @@ function compile_template($data, $template_name)
                         case '/':
                             $escaped[] = JSHTML_ESCAPED;
                             break;
-                        case '+':
-                            $escaped[] = PURE_STRING; // A performance marker
-                            break;
                     }
                 }
                 $_opener_params = '';
@@ -329,7 +326,7 @@ function _do_template($codename, $file_path, $tcp_path)
 {
     $template_contents = cms_file_get_contents_safe($file_path);
 
-    $result = template_to_tempcode($template_contents, 0, false, $codename);
+    $result = template_to_tempcode($template_contents, 0, $codename);
 
     $data_to_write = '<' . '?php' . "\n" . $result->to_assembly() . "\n";
     cms_file_put_contents_safe($tcp_path, $data_to_write);
@@ -337,7 +334,7 @@ function _do_template($codename, $file_path, $tcp_path)
     return $result;
 }
 
-function template_to_tempcode($text, $symbol_pos = 0, $inside_directive = false, $codename = '')
+function template_to_tempcode($text, $symbol_pos = 0, $codename = '')
 {
     $parts = compile_template(substr($text, $symbol_pos), $codename);
 

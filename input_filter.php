@@ -58,12 +58,6 @@ function check_posted_field($name, $val)
     }
 }
 
-/**
- * Convert a full URL to a domain name we will consider this a trust on.
- *
- * @param  URLPATH $url The URL
- * @return string The domain
- */
 function strip_url_to_representative_domain($url)
 {
     return preg_replace('#^www\.#', '', strtolower(parse_url($url, PHP_URL_HOST)));

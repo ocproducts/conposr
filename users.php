@@ -15,18 +15,18 @@ session_start();
 
 function is_guest()
 {
-    return (db_get_first_id() == get_member());
+    return (1 == get_member());
 }
 
 function get_member()
 {
     if (!isset($_SESSION['member_id'])) {
-        return db_get_first_id();
+        return 1;
     }
     return $_SESSION['member_id'];
 }
 
-function get_username($id)
+function get_username()
 {
     if (!isset($_SESSION['member_id'])) {
         return 'Guest';
@@ -34,7 +34,7 @@ function get_username($id)
     return $_SESSION['username'];
 }
 
-function get_member_email_address($id)
+function get_member_email_address()
 {
     if (!isset($_SESSION['member_id'])) {
         return '';
@@ -42,7 +42,7 @@ function get_member_email_address($id)
     return $_SESSION['email'];
 }
 
-function is_admin($id)
+function is_admin()
 {
     if (!isset($_SESSION['member_id'])) {
         return '';
@@ -50,7 +50,7 @@ function is_admin($id)
     return $_SESSION['is_admin'];
 }
 
-function get_member_row($member)
+function get_member_row()
 {
     if (!isset($_SESSION['member_id'])) {
         return '';

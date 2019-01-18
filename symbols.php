@@ -383,28 +383,6 @@ function ecv_($escaped, $param) // A Tempcode comment
     return $value;
 }
 
-function ecv_BROWSER($escaped, $param)
-{
-    $value = '';
-
-    if (isset($param[1])) {
-        $q = false;
-        foreach (explode('|', $param[0]) as $browser) {
-            $q = browser_matches($browser);
-            if ($q) {
-                break;
-            }
-        }
-        $value = $q ? $param[1] : (isset($param[2]) ? $param[2] : '');
-    }
-
-
-    if ($escaped !== array()) {
-        apply_tempcode_escaping($escaped, $value);
-    }
-    return $value;
-}
-
 function ecv__GET($escaped, $param)
 {
     $value = '';
@@ -474,10 +452,9 @@ function ecv_TRUNCATE_SPREAD($escaped, $param)
  * @param  array $param Parameters passed to the symbol (0=text, 1=amount, 2=tooltip?, 3=is_html?, 4=use as grammatical length rather than HTML byte length, 5=fractional-deviation-tolerance for grammar-preservation)
  * @param  string $type The type of truncation to do
  * @set    left right spread
- * @param  ?mixed $tooltip_if_truncated Tooltip to add on, but only if we end up creating our own tooltip (null: none)
  * @return string The result.
  */
-function symbol_truncator($param, $type, $tooltip_if_truncated = null)
+function symbol_truncator($param, $type)
 {
     $value = '';
 
@@ -499,7 +476,6 @@ function symbol_truncator($param, $type, $tooltip_if_truncated = null)
     $html = escape_html($param[0]);
 
     if ((isset($not_html[$amount])/*optimisation*/) && ((cms_mb_strlen($not_html) > $amount)) || (stripos($html, '<img') !== false)) {
-        $truncated = $not_html;
         switch ($type) {
             case 'left':
                 $temp = escape_html(cms_mb_substr($not_html, 0, max($amount - 3, 1)));
@@ -649,7 +625,7 @@ function ecv_MEMBER($escaped, $param)
 
 function ecv_USERNAME($escaped, $param)
 {
-    $value = get_username(get_member());
+    $value = get_username();
 
     if ($escaped !== array()) {
         apply_tempcode_escaping($escaped, $value);
@@ -689,7 +665,7 @@ function ecv_CYCLE($escaped, $param)
 
 function ecv_IS_ADMIN($escaped, $param)
 {
-    $value = is_admin(get_member()) ? '1' : '0';
+    $value = is_admin() ? '1' : '0';
 
     return $value;
 }
@@ -835,24 +811,6 @@ function ecv_FROM_TIMESTAMP($escaped, $param)
     return $value;
 }
 
-function ecv_BROWSER_MATCHES($escaped, $param)
-{
-    $value = '';
-
-    if (isset($param[0])) {
-        $q = false;
-        foreach (explode('|', $param[0]) as $browser) {
-            $q = browser_matches($browser);
-            if ($q) {
-                break;
-            }
-        }
-        $value = $q ? '1' : '0';
-    }
-
-    return $value;
-}
-
 function ecv_INIT($escaped, $param)
 {
     $value = '';
@@ -985,6 +943,8 @@ function ecv_DIV_FLOAT($escaped, $param)
 
 function ecv_DIV($escaped, $param)
 {
+    $value = '';
+
     if (isset($param[1])) {
         if (floatval($param[1]) == 0.0) {
             $value = 'divide-by-zero';
@@ -1397,6 +1357,16 @@ function ecv_JAVASCRIPT_TEMPCODE($escaped, $param)
         apply_tempcode_escaping($escaped, $value);
     }
     return $value;
+}
+
+function ecv_IF(&$value, $escaped, $param)
+{
+    if (isset($param[1])) {
+        $_p = $param[0]->evaluate();
+        if ($_p == '1') {
+            $value = $param[1]->evaluate();
+        }
+    }
 }
 
 function ecv_IF_EMPTY(&$value, $escaped, $param)
