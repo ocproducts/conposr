@@ -2,3 +2,8 @@
 Order Allow,Deny
 Deny from all
 </Files>
+
+<Files "admin.log">
+Order Allow,Deny
+Deny from all
+</Files>

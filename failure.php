@@ -60,6 +60,10 @@ function _composr_error_handler($errno, $errstr, $errfile, $errline)
 
 function _sanitise_error_msg($text)
 {
+    if (get_option('dev_mode') == '1') {
+        return $text;
+    }
+
     // Strip paths, for security reasons
     return str_replace(array(get_file_base() . '/', get_file_base() . '/'), array('', ''), $text);
 }
@@ -98,6 +102,12 @@ function _generic_exit($text, $template)
 
 function _fatal_exit($text, $_trace)
 {
+    static $already_failing = false;
+    if ($already_failing) {
+        exit(escape_html($text));
+    }
+    $already_failing = true;
+
     cms_ob_end_clean(); // Emergency output, potentially, so kill off any active buffer
 
     $text = _sanitise_error_msg($text);

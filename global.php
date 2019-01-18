@@ -28,11 +28,16 @@ require_code('web_resources');
 
 function require_code($codename)
 {
-    require_once(get_file_base() . '/conposr/' . $codename . '.php');
+    require_once(get_file_base() . '/lib/conposr/' . $codename . '.php');
 }
 
 function get_file_base()
 {
+    global $SITE_INFO;
+    if (!empty($SITE_INFO['file_base'])) {
+        return $SITE_INFO['file_base'];
+    }
+
     static $file_base = null;
     if ($file_base === null) {
         $file_base = dirname(__DIR__);
@@ -783,4 +788,48 @@ function cms_mb_strtoupper($in)
     }
 
     return strtoupper($in);
+}
+
+// Conposr-specific...
+
+function convert_camelcase_to_underscore($key)
+{
+    $_key = '';
+    $len = strlen($key);
+    $previousUpper = false;
+    for ($i = 0; $i < $len; $i++) {
+        $c = $key[$i];
+        if (strtoupper($c) == $c) {
+            if ((!$previousUpper) && ($i != 0)) {
+                $_key .= '_';
+            }
+            $_key .= strtolower($c);
+            $previousUpper = true;
+        } else {
+            $_key .= $c;
+            $previousUpper = false;
+        }
+    }
+    return $_key;
+}
+
+function convert_underscore_to_camelcase($key)
+{
+    $_key = '';
+    $len = strlen($key);
+    $previousUnderscore = false;
+    for ($i = 0; $i < $len; $i++) {
+        $c = $key[$i];
+        if ($c == '_') {
+            $previousUnderscore = true;
+        } else {
+            if ($previousUnderscore) {
+                $_key .= strtoupper($c);
+                $previousUnderscore = false;
+            } else {
+                $_key .= $c;
+            }
+        }
+    }
+    return $_key;
 }

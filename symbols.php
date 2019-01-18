@@ -37,10 +37,13 @@ function ecv($escaped, $type, $name, $param)
             // Support for PHP-style enums (FOO_BAR__X_Y --> FooBar::XY)
             if (strpos($name, '__') !== false) {
                 $parts = explode('__', $name, 2);
-                $class = str_replace('_', '', $parts[0]);
+                $class = ucfirst(convert_underscore_to_camelcase(strtolower($parts[0])));
                 if (class_exists($class)) { // PHP is not case sensitive. Also autoloading will work here.
-                    $property = str_replace('_', '', $parts[1]);
-                    return $class::$property;
+                    $property = $parts[1];
+                    $value = @constant($class . '::' . $property);
+                    if (isset($value)) {
+                        return @strval($value);
+                    }
                 }
             }
 
@@ -83,30 +86,6 @@ function ecv($escaped, $type, $name, $param)
 
             case 'IF_NON_EMPTY':
                 ecv_IF_NON_EMPTY($value, $escaped, $param);
-                break;
-
-            case 'IF_PASSED':
-                ecv_IF_PASSED($value, $escaped, $param);
-                break;
-
-            case 'IF_NON_PASSED':
-                ecv_IF_NON_PASSED($value, $escaped, $param);
-                break;
-
-            case 'IF_PASSED_AND_TRUE':
-                ecv_IF_PASSED_AND_TRUE($value, $escaped, $param);
-                break;
-
-            case 'IF_NON_PASSED_OR_FALSE':
-                ecv_IF_NON_PASSED_OR_FALSE($value, $escaped, $param);
-                break;
-
-            case 'WHILE':
-                ecv_WHILE($value, $escaped, $param);
-                break;
-
-            case 'LOOP':
-                ecv_LOOP($value, $escaped, $param);
                 break;
 
             case 'SET':
@@ -304,7 +283,7 @@ function ecv($escaped, $type, $name, $param)
         return $value;
     }
 
-    fatal_exit('Unknown variable type');
+    fatal_exit('Unknown variable type, ' . strval($type) . ', for ' . $name);
 }
 
 function ecv_SET($escaped, $param)
@@ -1383,89 +1362,6 @@ function ecv_IF_NON_EMPTY(&$value, $escaped, $param)
     if (isset($param[1])) {
         if (!$param[0]->is_empty()) {
             $value = $param[1]->evaluate();
-        }
-    }
-}
-
-function ecv_IF_PASSED(&$value, $escaped, $param)
-{
-    if (isset($param[1])) {
-        $t = $param[0]->evaluate();
-        if (isset($param['vars'][$t])) {
-            $value = $param[1]->evaluate();
-        }
-    }
-}
-
-function ecv_IF_NON_PASSED(&$value, $escaped, $param)
-{
-    if (isset($param[1])) {
-        $t = $param[0]->evaluate();
-        if (!isset($param['vars'][$t])) {
-            $value = $param[1]->evaluate();
-        }
-    }
-}
-
-function ecv_IF_PASSED_AND_TRUE(&$value, $escaped, $param)
-{
-    if (isset($param[1])) {
-        $t = $param[0]->evaluate();
-        if ((isset($param['vars'][$t])) && ($param['vars'][$t] !== false) && ($param['vars'][$t] === '1')) {
-            $value = $param[1]->evaluate();
-        }
-    }
-}
-
-function ecv_IF_NON_PASSED_OR_FALSE(&$value, $escaped, $param)
-{
-    if (isset($param[1])) {
-        $t = $param[0]->evaluate();
-        if ((!isset($param['vars'][$t])) || ($param['vars'][$t] === false) || ($param['vars'][$t] !== '1')) {
-            $value = $param[1]->evaluate();
-        }
-    }
-}
-
-function ecv_WHILE(&$value, $escaped, $param)
-{
-    if (isset($param[1])) {
-        $_p = $param[0]->evaluate();
-        if ($_p == '1') {
-            $value = '';
-            $value .= $param[1]->evaluate();
-            $put = '';
-            ecv_WHILE($put, $escaped, $param);
-            $value .= $put;
-        }
-    }
-}
-
-function ecv_LOOP(&$value, $escaped, $param)
-{
-    if (isset($param[0])) {
-        $array_key = $param[0]->evaluate();
-
-        if (!array_key_exists($array_key, $param['vars'])) {
-            fatal_exit('Missing template parameter ' . $array_key);
-        }
-
-        $array = $param['vars'][$array_key];
-        if (!is_array($array)) {
-            $value = 'Not array';
-            return;
-        }
-
-        $value = '';
-        $last = count($param) - 2;
-        foreach ($array as $go_key => $go) {
-            if (!is_array($go)) {
-                $go = array('_loop_var' => make_string_tempcode($go)); // In case it's not a list of maps, but just a list
-            }
-
-            $ps = $go + $param['vars'] + array('_loop_key' => make_string_tempcode(is_integer($go_key) ? strval($go_key) : $go_key));
-            $bound = $param[$last]->bind($ps, '');
-            $value .= $bound->evaluate();
         }
     }
 }

@@ -177,7 +177,7 @@ function compile_template($data, $template_name)
 
                         $temp = 'otp(isset($bound_' . php_addslashes($parameter) . ')?$bound_' . php_addslashes($parameter) . ':null';
                         if ((!function_exists('get_value')) || (get_value('shortened_tempcode') !== '1')) {
-                            $temp .= ',"' . php_addslashes($parameter . '/' . $template_name) . '"';
+                            $temp .= ',"' . php_addslashes($template_name . '/' . $parameter) . '"';
                         }
                         $temp .= ')';
 
@@ -264,16 +264,66 @@ function compile_template($data, $template_name)
                             $eval = '';
                         }
                         $directive_name = $eval;
+                        switch ($directive_name) {
+                            case 'COMMENT':
+                                break;
 
-                        if ($directive_params !== '') {
-                            $directive_params .= ',';
-                        }
-                        $directive_params .= implode('.', $past_level_data);
+                            case 'IF_PASSED':
+                                $tpl_funcs = array();
+                                $eval = debug_eval('return ' . $first_directive_param . ';', $tpl_funcs, array());
+                                if (!is_string($eval)) {
+                                    $eval = '';
+                                }
+                                $current_level_data[] = '(isset($bound_' . preg_replace('#[^\w]#', '', $eval) . ')?(' . implode('.', $past_level_data) . '):\'\')';
+                                break;
 
-                        if (isset($GLOBALS['DIRECTIVES_NEEDING_VARS'][$directive_name])) {
-                            $current_level_data[] = 'ecv(array(),' . strval(TC_DIRECTIVE) . ',' . implode('.', $directive_opener_params[1]) . ',array(' . $directive_params . ',\'vars\'=>$parameters))';
-                        } else {
-                            $current_level_data[] = 'ecv(array(),' . strval(TC_DIRECTIVE) . ',' . implode('.', $directive_opener_params[1]) . ',array(' . $directive_params . '))';
+                            case 'IF_NON_PASSED':
+                                $tpl_funcs = array();
+                                $eval = debug_eval('return ' . $first_directive_param . ';', $tpl_funcs, array());
+                                if (!is_string($eval)) {
+                                    $eval = '';
+                                }
+                                $current_level_data[] = '(!isset($bound_' . preg_replace('#[^\w]#', '', $eval) . ')?(' . implode('.', $past_level_data) . '):\'\')';
+                                break;
+
+                            case 'IF_PASSED_AND_TRUE':
+                                $tpl_funcs = array();
+                                $eval = debug_eval('return ' . $first_directive_param . ';', $tpl_funcs, array());
+                                if (!is_string($eval)) {
+                                    $eval = '';
+                                }
+                                $current_level_data[] = '((isset($bound_' . preg_replace('#[^\w]#', '', $eval) . ') && (otp($bound_' . preg_replace('#[^\w]#', '', $eval) . ')=="1"))?(' . implode('.', $past_level_data) . '):\'\')';
+                                break;
+
+                            case 'IF_NON_PASSED_OR_FALSE':
+                                $tpl_funcs = array();
+                                $eval = debug_eval('return ' . $first_directive_param . ';', $tpl_funcs, array());
+                                if (!is_string($eval)) {
+                                    $eval = '';
+                                }
+                                $current_level_data[] = '((!isset($bound_' . preg_replace('#[^\w]#', '', $eval) . ') || (otp($bound_' . preg_replace('#[^\w]#', '', $eval) . ')!="1"))?(' . implode('.', $past_level_data) . '):\'\')';
+                                break;
+
+                            case 'WHILE':
+                                $current_level_data[] = 'closure_while_loop(array($parameters),' . "\n" . 'recall_named_function(\'' . uniqid('', true) . '\',\'$parameters\',"extract(\$parameters,EXTR_PREFIX_ALL,\'bound\'); return (' . php_addslashes($first_directive_param) . ')==\"1\";"),' . "\n" . 'recall_named_function(\'' . uniqid('', true) . '\',\'$parameters\',"extract(\$parameters,EXTR_PREFIX_ALL,\'bound\'); return ' . php_addslashes(implode('.', $past_level_data)) . ';"))';
+                                break;
+
+                            case 'LOOP':
+                                $current_level_data[] = 'closure_loop(array(' . $directive_params . ',\'vars\'=>$parameters),array($parameters),' . "\n" . 'recall_named_function(\'' . uniqid('', true) . '\',\'$parameters\',"extract(\$parameters,EXTR_PREFIX_ALL,\'bound\'); return ' . php_addslashes(implode('.', $past_level_data)) . ';"))';
+                                break;
+
+                            default:
+                                if ($directive_params !== '') {
+                                    $directive_params .= ',';
+                                }
+                                $directive_params .= implode('.', $past_level_data);
+
+                                if (isset($GLOBALS['DIRECTIVES_NEEDING_VARS'][$directive_name])) {
+                                    $current_level_data[] = 'ecv(array(),' . strval(TC_DIRECTIVE) . ',' . implode('.', $directive_opener_params[1]) . ',array(' . $directive_params . ',\'vars\'=>$parameters))';
+                                } else {
+                                    $current_level_data[] = 'ecv(array(),' . strval(TC_DIRECTIVE) . ',' . implode('.', $directive_opener_params[1]) . ',array(' . $directive_params . '))';
+                                }
+                                break;
                         }
                     } else {
                         $tpl_funcs = array();

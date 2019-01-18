@@ -69,7 +69,7 @@ function otp($var, $origin = '')
 {
     switch (gettype($var)) {
         case 'NULL':
-            missing_template_parameter($origin);
+            return missing_template_parameter($origin);
         case 'string':
             return $var;
         case 'object':
@@ -163,6 +163,79 @@ function build_closure_tempcode($type, $name, $parameters, $escaping = null)
     return $ret;
 }
 
+function closure_while_loop($args, $control_function, $main_function)
+{
+    $out = '';
+    while (call_user_func_array($control_function, $args)) {
+        $out .= call_user_func_array($main_function, $args);
+    }
+    return $out;
+}
+
+function closure_eval($code, $parameters)
+{
+    if (get_value('allow_php_in_templates') !== '1') {
+        return do_lang('NO_PHP_IN_TEMPLATES');
+    }
+
+    $ret = /*$GLOBALS['DEV_MODE']?debug_eval($code):*/
+        eval($code);
+    if (!is_string($ret)) {
+        $ret = @strval($ret);
+    }
+    return $ret;
+}
+
+function closure_loop($param, $args, $main_function)
+{
+    $value = '';
+
+    if (isset($param[0])) {
+        $array_key = $param[0];
+        if ((is_numeric($array_key)) || (strpos($array_key, ',') !== false) || (strpos($array_key, '=') !== false)) {
+            $array = array();
+            foreach (explode(',', $array_key) as $x) {
+                if (strpos($x, '=') !== false) {
+                    list($key, $val) = explode('=', $x, 2);
+                    if ($key === '' && isset($array[$key])) {
+                        $array[] = $val; // Empty keys: which are done to allow "="s in strings by putting in an empty key
+                    } else {
+                        $array[$key] = $val;
+                    }
+                } else {
+                    $array[] = $x;
+                }
+            }
+        } else {
+            $array = isset($param['vars'][$array_key]) ? $param['vars'][$array_key] : array();
+        }
+        if (!is_array($array)) {
+            return do_lang('TEMPCODE_NOT_ARRAY'); // Must have this, otherwise will loop over the Tempcode object
+        }
+        $col = 0;
+
+        $first = true;
+        $max_index = count($array) - 1;
+        foreach ($array as $go_key => $go) {
+            if (!is_array($go)) {
+                $go = array('_loop_var' => $go);
+            } else {
+                $go['_loop_var'] = '(array)'; // In case it's not a list of maps, but just a list
+            }
+
+            $ps = $go + array('_loop_key' => is_integer($go_key) ? strval($go_key) : $go_key, '_i' => strval($col), '_first' => $first, '_last' => $col == $max_index);
+            $args[0] = $ps + $args[0];
+            $args[0]['vars'] = $args[0];
+            $value .= call_user_func_array($main_function, $args);
+
+            ++$col;
+            $first = false;
+        }
+    }
+
+    return $value;
+}
+
 function make_string_tempcode($string)
 {
     static $generator_base = null;
@@ -236,16 +309,16 @@ function do_template($codename, $parameters = null)
 {
     $file_path = get_file_base() . '/templates/' . $codename . '.tpl';
     if (!is_file($file_path)) {
-        $file_path = get_file_base() . '/conposr/templates/' . $codename . '.tpl';
+        $file_path = get_file_base() . '/lib/conposr/templates/' . $codename . '.tpl';
     }
 
-    $tcp_path = get_file_base() . '/conposr/caches/templates/' . $codename . '.tcp';
+    $tcp_path = get_file_base() . '/lib/conposr/caches/templates/' . $codename . '.tcp';
 
     if (!is_dir(dirname($tcp_path))) {
         mkdir(dirname($tcp_path), 0777, true);
     }
 
-    if (filemtime($file_path) < filemtime($tcp_path)) {
+    if ((is_file($tcp_path)) && (filemtime($file_path) < filemtime($tcp_path))) {
         $_data = new Tempcode();
         $_data->from_assembly_executed($tcp_path);
     } else {
@@ -407,7 +480,7 @@ class Tempcode
             $p_type = gettype($parameter);
             if ($p_type === 'boolean') {
                 $parameters[$key] = $parameter ? '1' : '0';
-            } elseif (($p_type !== 'array') && ($p_type !== 'NULL')) {
+            } elseif (($p_type !== 'array') && ($p_type !== 'NULL') && ($p_type !== 'string') && ($p_type !== 'object')) {
                 fatal_exit('Should not bind numeric values, on ' . $codename);
             }
         }

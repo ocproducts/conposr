@@ -15,7 +15,7 @@ function tacit_https()
 {
     static $tacit_https = null;
     if ($tacit_https === null) {
-        $tacit_https = (($_SERVER['HTTPS'] != '') && ($_SERVER['HTTPS'] != 'off')) || ((array_key_exists('HTTP_X_FORWARDED_PROTO', $_SERVER)) && ($_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https'));
+        $tacit_https = ((!empty($_SERVER['HTTPS'])) && ($_SERVER['HTTPS'] != 'off')) || ((array_key_exists('HTTP_X_FORWARDED_PROTO', $_SERVER)) && ($_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https'));
     }
     return $tacit_https;
 }

@@ -19,8 +19,8 @@ $CONFIG_OPTIONS = array(
 
     'dev_ip' => '127.0.0.1',
 
-    'error_log' => get_file_base() . '/conposr/error.log',
-    'admin_log' => get_file_base() . '/conposr/admin.log',
+    'error_log' => get_file_base() . '/lib/conposr/error.log',
+    'admin_log' => get_file_base() . '/lib/conposr/admin.log',
 
     'db_type' => 'mysqli',
     'db_site_host' => 'localhost',
@@ -32,7 +32,7 @@ $CONFIG_OPTIONS = array(
     'base_url' => null,
 );
 if (isset($SITE_INFO)) {
-    $CONFIG_OPTIONS += $SITE_INFO;
+    $CONFIG_OPTIONS = $SITE_INFO + $CONFIG_OPTIONS;
 }
 
 $error_log = get_option('error_log');
