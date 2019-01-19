@@ -17,6 +17,8 @@ $CONFIG_OPTIONS = array(
     'time_format' => 'H:i:s',
     'timezone' => date_default_timezone_get(),
 
+    'guest_id' => 1,
+
     'dev_ip' => '127.0.0.1',
 
     'error_log' => get_file_base() . '/lib/conposr/error.log',

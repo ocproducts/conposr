@@ -11,6 +11,9 @@
  * @package    conposr
  */
 
+global $THROWING_ERRORS;
+$THROWING_ERRORS = false;
+
 function _composr_error_handler($errno, $errstr, $errfile, $errline)
 {
     // Strip down path for security
@@ -49,12 +52,13 @@ function _composr_error_handler($errno, $errstr, $errfile, $errline)
     $errstr = _sanitise_error_msg($errstr);
 
     // Put into error log
-    if (get_param_integer('keep_fatalistic', 0) == 0) {
+    if ((get_param_integer('keep_fatalistic', 0) == 0) && (!throwing_errors())) {
         $php_error_label = $errstr . ' in ' . $errfile . ' on line ' . strval($errline) . ' @ ' . get_self_url_easy();
         error_log('PHP ' . ucwords($type) . ': ' . $php_error_label, 0);
     }
 
     $error_str = 'PHP ' . strtoupper($type) . ' [' . strval($errno) . '] ' . $errstr . ' in ' . $errfile . ' on line ' . strval($errline);
+
     fatal_exit($error_str);
 }
 
@@ -70,6 +74,10 @@ function _sanitise_error_msg($text)
 
 function _generic_exit($text, $template)
 {
+    if (throwing_errors()) {
+        throw new CMSException($text);
+    }
+
     if (get_param_integer('keep_fatalistic', 0) == 1) {
         fatal_exit($text);
     }
@@ -111,6 +119,10 @@ function _fatal_exit($text, $_trace)
     cms_ob_end_clean(); // Emergency output, potentially, so kill off any active buffer
 
     $text = _sanitise_error_msg($text);
+
+    if (throwing_errors()) {
+        throw new CMSException($text);
+    }
 
     if (!headers_sent()) {
         header('Content-type: text/html; charset=utf-8');
@@ -160,7 +172,7 @@ function get_html_trace($_trace = null)
         foreach ($stage as $key => $value) {
             $_value = put_value_in_stack_trace($value);
 
-            $traces .= ucfirst($key) . ' -> ' . escape_html($_value) . '<br />' . "\n";
+            $traces .= ucfirst($key) . ' -> ' . $_value . '<br />' . "\n";
         }
         $trace .= '<p>' . $traces . '</p>' . "\n";
     }
@@ -208,6 +220,10 @@ function _access_denied($message)
 {
     http_response_code(401); // Stop spiders ever storing the URL that caused this
 
+    if (throwing_errors()) {
+        throw new CMSException($message);
+    }
+
     if (get_param_integer('keep_fatalistic', 0) == 1) {
         fatal_exit($message);
     }
@@ -220,4 +236,28 @@ function _access_denied($message)
     }
 
     warn_exit($message); // Or if no login screen, just show normal error screen
+}
+
+function set_throw_errors($_throwing_errors = true)
+{
+    global $THROWING_ERRORS;
+    $THROWING_ERRORS = $_throwing_errors;
+}
+
+function throwing_errors()
+{
+    global $THROWING_ERRORS;
+    return $THROWING_ERRORS;
+}
+
+class CMSException extends Exception
+{
+    public function __construct($msg)
+    {
+        if (is_object($msg)) {
+            $msg = strip_html($msg->evaluate());
+        }
+
+        parent::__construct($msg);
+    }
 }

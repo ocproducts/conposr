@@ -236,6 +236,13 @@ function closure_loop($param, $args, $main_function)
     return $value;
 }
 
+function protect_from_escaping($in)
+{
+    $ret = make_string_tempcode($in);
+    $ret->pure_lang = true;
+    return $ret;
+}
+
 function make_string_tempcode($string)
 {
     static $generator_base = null;
@@ -336,6 +343,7 @@ class Tempcode
 {
     public $code_to_preexecute;
     public $seq_parts; // List of list of closure pairs: (0) function name, and (1) parameters, (2) type, (3) name         We use a 2D list to make attach ops very fast
+    public $pure_lang;
     public $evaluate_echo_offset_group = 0;
     public $evaluate_echo_offset_inner = 0;
 
@@ -361,7 +369,7 @@ class Tempcode
 
     public function __sleep()
     {
-        return array('code_to_preexecute', 'seq_parts', 'codename');
+        return array('code_to_preexecute', 'seq_parts', 'pure_lang', 'codename');
     }
 
     public function decache()
@@ -429,7 +437,7 @@ class Tempcode
 
     public function to_assembly()
     {
-        return 'return unserialize("' . php_addslashes(serialize(array($this->seq_parts, $this->codename, $this->code_to_preexecute))) . '");' . "\n";
+        return 'return unserialize("' . php_addslashes(serialize(array($this->seq_parts, $this->codename, $this->pure_lang, $this->code_to_preexecute))) . '");' . "\n";
     }
 
     public function from_assembly_executed($file)
@@ -440,7 +448,7 @@ class Tempcode
         }
 
         $this->cached_output = null;
-        list($this->seq_parts,  $this->codename, $this->code_to_preexecute) = $result;
+        list($this->seq_parts,  $this->codename, $this->pure_lang, $this->code_to_preexecute) = $result;
 
         return true;
     }

@@ -103,6 +103,11 @@ function composr_error_handler($errno, $errstr, $errfile, $errline)
     return false;
 }
 
+function either_param_string($name, $default = false)
+{
+    return get_param_string($name, post_param_string($name, $default));
+}
+
 function post_param_string($name, $default = false)
 {
     $ret = __param($_POST, $name, $default, false, true);
@@ -169,6 +174,11 @@ function __param($array, $name, $default, $integer = false, $posted = false)
     }
 
     return $val;
+}
+
+function either_param_integer($name, $default = false)
+{
+    return get_param_integer($name, post_param_integer($name, $default));
 }
 
 function post_param_integer($name, $default = false)
@@ -817,7 +827,7 @@ function convert_camelcase_to_underscore($key)
     $previousUpper = false;
     for ($i = 0; $i < $len; $i++) {
         $c = $key[$i];
-        if (strtoupper($c) == $c) {
+        if (ctype_upper($c)) {
             if ((!$previousUpper) && ($i != 0)) {
                 $_key .= '_';
             }
