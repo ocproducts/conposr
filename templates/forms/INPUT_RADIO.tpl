@@ -3,7 +3,7 @@
 		{LIST}
 	{+END}
 	{+START,IF_PASSED,LIST_ARRAY}{+START,IF_PASSED,NAME}
-		{+START,LOOP,LIST_ARRAY}
+		{+START,LOOP,{LIST_ARRAY}}
 			<div>
 				<label for="{NAME*}_{_loop_key|*}">
 					{+START,IF,{$EQ,{_loop_key},}}

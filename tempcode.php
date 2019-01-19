@@ -172,20 +172,6 @@ function closure_while_loop($args, $control_function, $main_function)
     return $out;
 }
 
-function closure_eval($code, $parameters)
-{
-    if (get_value('allow_php_in_templates') !== '1') {
-        return do_lang('NO_PHP_IN_TEMPLATES');
-    }
-
-    $ret = /*$GLOBALS['DEV_MODE']?debug_eval($code):*/
-        eval($code);
-    if (!is_string($ret)) {
-        $ret = @strval($ret);
-    }
-    return $ret;
-}
-
 function closure_loop($param, $args, $main_function)
 {
     $value = '';
@@ -210,7 +196,7 @@ function closure_loop($param, $args, $main_function)
             $array = isset($param['vars'][$array_key]) ? $param['vars'][$array_key] : array();
         }
         if (!is_array($array)) {
-            return do_lang('TEMPCODE_NOT_ARRAY'); // Must have this, otherwise will loop over the Tempcode object
+            return 'NOT_ARRAY'; // Must have this, otherwise will loop over the Tempcode object
         }
         $col = 0;
 

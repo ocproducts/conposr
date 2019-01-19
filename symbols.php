@@ -878,7 +878,7 @@ function ecv_ADD($escaped, $param)
         $_value += floatval(str_replace(',', '', $p));
     }
 
-    $value = float_to_raw_string($_value);
+    $value = float_to_raw_string($_value, 20, true);
 
     return $value;
 }
@@ -899,7 +899,7 @@ function ecv_SUBTRACT($escaped, $param)
             }
         }
 
-        $value = float_to_raw_string($_value);
+        $value = float_to_raw_string($_value, 20, true);
     }
 
     return $value;

@@ -186,6 +186,7 @@ function post_param_integer($name, $default = false)
     $ret = __param($_POST, $name, ($default === false) ? $default : (($default === null) ? '' : strval($default)), true, true);
 
     if (((($default === null) && ($ret === '')) ? null : intval($ret)) !== $default) {
+        require_code('input_filter');
         check_posted_field($name, $ret);
     }
 
