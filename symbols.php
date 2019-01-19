@@ -586,11 +586,7 @@ function cms_trim($text, $try_hard = true)
 
 function ecv_IS_GUEST($escaped, $param)
 {
-    if (isset($param[0])) {
-        $value = (is_guest(intval($param[0]))) ? '1' : '0';
-    } else {
-        $value = is_guest() ? '1' : '0';
-    }
+    $value = is_guest() ? '1' : '0';
 
     return $value;
 }
