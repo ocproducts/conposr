@@ -369,6 +369,6 @@ class DatabaseConnector
         }
 
         $query = 'DELETE FROM ' . $this->table_prefix . $table . ' WHERE (' . $where . ') ' . $end;
-        $this->_query($query, $max, $start, $fail_ok);
+        return $this->_query($query, $max, $start, $fail_ok, true);
     }
 }
