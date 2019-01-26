@@ -916,6 +916,17 @@ function ecv_DIV_FLOAT($escaped, $param)
     return $value;
 }
 
+function ecv_MULT($escaped, $param)
+{
+    $value = '';
+
+    if (isset($param[1])) {
+        $value = float_to_raw_string(floatval($param[0]) * floatval($param[1]), 20, true);
+    }
+
+    return $value;
+}
+
 function ecv_DIV($escaped, $param)
 {
     $value = '';
