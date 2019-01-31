@@ -13,9 +13,12 @@
 
 session_start();
 
-function is_guest()
+function is_guest($member_id = null)
 {
-    return (get_option('guest_id') == get_member());
+    if ($member_id === null) {
+        $member_id = get_member();
+    }
+    return (get_option('guest_id') == $member_id);
 }
 
 function get_member()

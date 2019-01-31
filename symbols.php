@@ -16,6 +16,8 @@ function ecv($escaped, $type, $name, $param)
     // SYMBOLS...
 
     if ($type === TC_SYMBOL) {
+        $value = '';
+
         // Built-in
         if ($name === '?') {
             $value = call_user_func('ecv_TERNARY', $escaped, $param);
@@ -284,6 +286,7 @@ function ecv($escaped, $type, $name, $param)
     }
 
     fatal_exit('Unknown variable type, ' . strval($type) . ', for ' . $name);
+    return null;
 }
 
 function ecv_SET($escaped, $param)
@@ -367,7 +370,7 @@ function ecv__GET($escaped, $param)
     $value = '';
 
     if (isset($param[0])) {
-        $value = get_param_string($param[0], isset($param[1]) ? $param[1] : '', true);
+        $value = get_param_string($param[0], isset($param[1]) ? $param[1] : '');
     }
 
     if ($escaped !== array()) {
@@ -745,8 +748,7 @@ function ecv_SET_RAND($escaped, $param)
 function ecv_DATE_AND_TIME($escaped, $param)
 {
     $time = ((isset($param[0])) && ($param[0] != '')) ? intval($param[0]) : time();
-    $use_contextual_dates = (isset($param[1]) && ($param[1] == '1'));
-    $value = get_timezoned_date($time, true, $use_contextual_dates);
+    $value = get_timezoned_date($time, true);
 
     if ($escaped !== array()) {
         apply_tempcode_escaping($escaped, $value);
@@ -757,8 +759,7 @@ function ecv_DATE_AND_TIME($escaped, $param)
 function ecv_DATE($escaped, $param)
 {
     $time = ((isset($param[0])) && ($param[0] != '')) ? intval($param[0]) : time();
-    $use_contextual_dates = (isset($param[1]) && ($param[1] == '1'));
-    $value = get_timezoned_date($time, false, $use_contextual_dates);
+    $value = get_timezoned_date($time, false);
 
     if ($escaped !== array()) {
         apply_tempcode_escaping($escaped, $value);
@@ -1086,8 +1087,6 @@ function ecv_ESCAPE($escaped, $param)
 
 function ecv_EQ($escaped, $param)
 {
-    $value = '';
-
     if (!isset($param[0])) {
         $param[0] = '';
     }
@@ -1109,8 +1108,6 @@ function ecv_EQ($escaped, $param)
 
 function ecv_NEQ($escaped, $param)
 {
-    $value = '';
-
     if (!isset($param[0])) {
         $param[0] = '';
     }
@@ -1142,8 +1139,6 @@ function ecv_NOT($escaped, $param)
 
 function ecv_OR($escaped, $param)
 {
-    $value = '';
-
     $count = 0;
     foreach ($param as $test) {
         if ($test == '1') {
@@ -1230,7 +1225,7 @@ function ecv_SELF_URL($escaped, $param)
 
 function ecv_MOBILE($escaped, $param)
 {
-    $value = is_mobile(null, isset($param[0]) ? ($param[0] == '1') : false) ? '1' : '0';
+    $value = is_mobile() ? '1' : '0';
 
     return $value;
 }
@@ -1313,8 +1308,6 @@ function ecv_NUMBER_FORMAT($escaped, $param)
 
 function ecv_CSS_TEMPCODE($escaped, $param)
 {
-    $value = '';
-
     global $CSS_REQUIRED;
     $_value = new Tempcode();
     foreach ($CSS_REQUIRED as $code) {
@@ -1330,8 +1323,6 @@ function ecv_CSS_TEMPCODE($escaped, $param)
 
 function ecv_JAVASCRIPT_TEMPCODE($escaped, $param)
 {
-    $value = '';
-
     global $JAVASCRIPT_REQUIRED;
     $_value = new Tempcode();
     foreach ($JAVASCRIPT_REQUIRED as $code) {

@@ -137,7 +137,7 @@ class DatabaseConnector
             $query = 'INSERT INTO ' . $this->table_prefix . $table . ' (' . $keys . ') VALUES ' . $all_v;
         }
 
-        return $this->_query($query, null, null, $fail_ok, $ret, null, '');
+        return $this->_query($query, null, null, $fail_ok, $ret);
     }
 
     protected function _get_where_expand($table, $select_map = null, $where_map = null, $end = '')
@@ -341,7 +341,7 @@ class DatabaseConnector
             } else {
                 $this->_query('DELETE FROM ' . $this->table_prefix . $table . ' ' . $end, $max, $start, $fail_ok);
             }
-            return;
+            return null;
         }
 
         $where = '';

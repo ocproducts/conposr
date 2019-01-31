@@ -220,8 +220,6 @@ function compile_template($data, $template_name)
                         if ($past_level_data === array()) {
                             $past_level_data = array('""');
                         }
-                        $past_level_params = $current_level_params;
-                        $past_level_mode = $current_level_mode;
                         if ($stack === array()) {
                             fatal_exit('Brace/directive mismatch: too many closes, or closed one that was not open in ' . $template_name . ' on line ' . integer_format(1 + substr_count(substr($data, 0, _length_so_far($bits, $i)), "\n")));
                         }

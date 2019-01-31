@@ -69,7 +69,8 @@ function otp($var, $origin = '')
 {
     switch (gettype($var)) {
         case 'NULL':
-            return missing_template_parameter($origin);
+            missing_template_parameter($origin);
+            break;
         case 'string':
             return $var;
         case 'object':

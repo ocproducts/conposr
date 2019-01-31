@@ -60,6 +60,7 @@ function _composr_error_handler($errno, $errstr, $errfile, $errline)
     $error_str = 'PHP ' . strtoupper($type) . ' [' . strval($errno) . '] ' . $errstr . ' in ' . $errfile . ' on line ' . strval($errline);
 
     fatal_exit($error_str);
+    return null;
 }
 
 function _sanitise_error_msg($text)
