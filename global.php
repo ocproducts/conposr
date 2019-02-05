@@ -583,7 +583,7 @@ function collapse_1d_complexity($key, $list)
 
 function get_ip_address()
 {
-    return $_SERVER['REMOTE_ADDR'];
+    return isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
 }
 
 function log_it($message)
@@ -825,18 +825,15 @@ function convert_camelcase_to_underscore($key)
 {
     $_key = '';
     $len = strlen($key);
-    $previousUpper = false;
     for ($i = 0; $i < $len; $i++) {
         $c = $key[$i];
         if (ctype_upper($c)) {
-            if ((!$previousUpper) && ($i != 0)) {
+            if ($i != 0) {
                 $_key .= '_';
             }
             $_key .= strtolower($c);
-            $previousUpper = true;
         } else {
             $_key .= $c;
-            $previousUpper = false;
         }
     }
     return $_key;

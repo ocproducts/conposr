@@ -1,4 +1,4 @@
-<div{+START,IF_PASSED,CLASS} class="{CLASS*}"{+END}{+START,IF_PASSED,TABINDEX} tabindex="{TABINDEX*}"{+END}{+START,IF_PASSED,EXTRA} {EXTRA}{+END}>
+<div>
 	{+START,IF_PASSED,LIST}
 		{LIST}
 	{+END}
@@ -8,12 +8,12 @@
 				<label for="{NAME*}_{_loop_key|*}">
 					{+START,IF,{$EQ,{_loop_key},}}
 						{+START,IF_NON_PASSED_OR_FALSE,LIST_TRIM_BLANK}
-							<input type="radio" id="{NAME*}_{_loop_key|*}" name="{NAME*}" value="{_loop_key*}"{+START,IF_PASSED,VALUE}{+START,IF,{$EQ,{VALUE},{_loop_key}}} checked="checked"{+END}{+END} />
+							<input type="radio" id="{NAME*}_{_loop_key|*}" name="{NAME*}" value="{_loop_key*}"{+START,IF_PASSED,VALUE}{+START,IF,{$EQ,{VALUE},{_loop_key}}} checked="checked"{+END}{+END}{+START,IF_PASSED,CLASS} class="{CLASS*}"{+END}{+START,IF_PASSED,TABINDEX} tabindex="{TABINDEX*}"{+END}{+START,IF_PASSED,EXTRA} {EXTRA}{+END} />
 						{+END}
 					{+END}
 
 					{+START,IF,{$NEQ,{_loop_key},}}
-						<input type="radio" id="{NAME*}_{_loop_key|*}" name="{NAME*}" value="{_loop_key*}"{+START,IF_PASSED,VALUE}{+START,IF,{$EQ,{VALUE},{_loop_key}}} checked="checked"{+END}{+END} />
+						<input type="radio" id="{NAME*}_{_loop_key|*}" name="{NAME*}" value="{_loop_key*}"{+START,IF_PASSED,VALUE}{+START,IF,{$EQ,{VALUE},{_loop_key}}} checked="checked"{+END}{+END}{+START,IF_PASSED,CLASS} class="{CLASS*}"{+END}{+START,IF_PASSED,TABINDEX} tabindex="{TABINDEX*}"{+END}{+START,IF_PASSED,EXTRA} {EXTRA}{+END} />
 					{+END}
 
 					{_loop_var*}
