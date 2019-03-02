@@ -999,6 +999,20 @@ function ecv_REPLACE($escaped, $param)
     return $value;
 }
 
+function ecv_TEMPCODE_LIST_ESCAPE($escaped, $param)
+{
+    $value = '';
+
+    if (isset($param[0])) {
+        $value = str_replace(',', '&#44;', $param[0]);
+    }
+
+    if ($escaped !== array()) {
+        apply_tempcode_escaping($escaped, $value);
+    }
+    return $value;
+}
+
 function ecv_IN_STR($escaped, $param)
 {
     $value = '';

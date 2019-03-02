@@ -6,12 +6,12 @@
 		{+START,LOOP,{LIST_ARRAY}}
 			{+START,IF,{$EQ,{_loop_key},}}
 				{+START,IF_NON_PASSED_OR_FALSE,LIST_TRIM_BLANK}
-					<option value="{_loop_key*}"{+START,IF_PASSED,VALUE}{+START,IF,{$EQ,{VALUE},{_loop_key}}} selected="selected"{+END}{+END}>{_loop_var*}</option>
+					<option value="{_loop_key*}"{+START,IF_PASSED,VALUE}{+START,IF,{$EQ,{VALUE},{_loop_key}}} selected="selected"{+END}{+END}>{$REPLACE*,&#44;,\,,{_loop_var}}</option>
 				{+END}
 			{+END}
 
 			{+START,IF,{$NEQ,{_loop_key},}}
-				<option value="{_loop_key*}"{+START,IF_PASSED,VALUE}{+START,IF,{$EQ,{VALUE},{_loop_key}}} selected="selected"{+END}{+END}>{_loop_var*}</option>
+				<option value="{_loop_key*}"{+START,IF_PASSED,VALUE}{+START,IF,{$EQ,{VALUE},{_loop_key}}} selected="selected"{+END}{+END}>{$REPLACE*,&#44;,\,,{_loop_var}}</option>
 			{+END}
 		{+END}
 	{+END}
