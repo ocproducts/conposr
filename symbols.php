@@ -919,11 +919,13 @@ function ecv_DIV_FLOAT($escaped, $param)
 
 function ecv_MULT($escaped, $param)
 {
-    $value = '';
+    $_value = 1.0;
 
-    if (isset($param[1])) {
-        $value = float_to_raw_string(floatval($param[0]) * floatval($param[1]), 20, true);
+    foreach ($param as $p) {
+        $_value *= floatval(str_replace(',', '', $p));
     }
+
+    $value = float_to_raw_string($_value, 20, true);
 
     return $value;
 }
