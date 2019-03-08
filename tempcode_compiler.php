@@ -372,7 +372,7 @@ function compile_template($data, $template_name)
 
 function _do_template($codename, $file_path, $tcp_path)
 {
-	$template_contents = unixify_line_format(cms_file_get_contents_safe($file_path));
+    $template_contents = unixify_line_format(cms_file_get_contents_safe($file_path));
 
     $result = template_to_tempcode($template_contents, 0, $codename);
 

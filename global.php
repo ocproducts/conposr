@@ -827,28 +827,28 @@ function cms_mb_strtoupper($in)
  */
 function unixify_line_format($in)
 {
-	if ($in === '') {
-		return $in;
-	}
+    if ($in === '') {
+        return $in;
+    }
 
-	static $bom = null;
-	if ($bom === null) {
-		$bom = chr(0xEF) . chr(0xBB) . chr(0xBF);
-	}
-	if (substr($in, 0, 3) == $bom) {
-		$in = substr($in, 3);
-	}
+    static $bom = null;
+    if ($bom === null) {
+        $bom = chr(0xEF) . chr(0xBB) . chr(0xBF);
+    }
+    if (substr($in, 0, 3) == $bom) {
+        $in = substr($in, 3);
+    }
 
-	static $from = null;
-	if ($from === null) {
-		$from = array("\r\n", "\r");
-	}
-	static $to = null;
-	if ($to === null) {
-		$to = array("\n", "\n");
-	}
-	$in = str_replace($from, $to, $in);
-	return $in;
+    static $from = null;
+    if ($from === null) {
+        $from = array("\r\n", "\r");
+    }
+    static $to = null;
+    if ($to === null) {
+        $to = array("\n", "\n");
+    }
+    $in = str_replace($from, $to, $in);
+    return $in;
 }
 
 // Conposr-specific...
