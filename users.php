@@ -18,13 +18,13 @@ function is_guest($member_id = null)
     if ($member_id === null) {
         $member_id = get_member();
     }
-    return (get_option('guest_id') == $member_id);
+    return (intval(get_option('guest_id')) == $member_id);
 }
 
 function get_member()
 {
     if (!isset($_SESSION['member_id'])) {
-        return get_option('guest_id');
+        return intval(get_option('guest_id'));
     }
     return $_SESSION['member_id'];
 }
