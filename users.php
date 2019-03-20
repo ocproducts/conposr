@@ -11,6 +11,7 @@
  * @package    conposr
  */
 
+session_cache_limiter('private');
 session_start();
 
 function is_guest($member_id = null)
