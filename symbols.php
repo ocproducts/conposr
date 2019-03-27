@@ -1379,3 +1379,13 @@ function ecv_IF_NON_EMPTY(&$value, $escaped, $param)
         }
     }
 }
+
+function ecv_PAGE($escaped, $param)
+{
+    $value = basename($_SERVER['SCRIPT_NAME'], '.php');
+
+    if ($escaped !== array()) {
+        apply_tempcode_escaping($escaped, $value);
+    }
+    return $value;
+}
