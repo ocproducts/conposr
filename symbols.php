@@ -973,6 +973,25 @@ function ecv_LCASE($escaped, $param)
     return $value;
 }
 
+function ecv_UCASE($lang, $escaped, $param)
+{
+    $value = '';
+
+    if (isset($param[0])) {
+        if ((isset($param[1])) && ($param[1] == '1')) {
+            $value = cms_mb_strtoupper(cms_mb_substr($param[0], 0, 1)) . cms_mb_substr($param[0], 1); // ucfirst
+        } else {
+            $value = cms_mb_strtoupper($param[0]);
+        }
+    }
+
+    if ($escaped !== array()) {
+        apply_tempcode_escaping($escaped, $value);
+    }
+
+    return $value;
+}
+
 function ecv__POST($escaped, $param)
 {
     $value = '';
