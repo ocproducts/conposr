@@ -973,7 +973,7 @@ function ecv_LCASE($escaped, $param)
     return $value;
 }
 
-function ecv_UCASE($lang, $escaped, $param)
+function ecv_UCASE($escaped, $param)
 {
     $value = '';
 
