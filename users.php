@@ -12,6 +12,7 @@
  */
 
 session_cache_limiter('private');
+session_cache_expire(0);
 session_start();
 
 function is_guest($member_id = null)
