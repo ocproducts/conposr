@@ -18,11 +18,17 @@ $JAVASCRIPT_REQUIRED = array();
 function require_css($css)
 {
     global $CSS_REQUIRED;
-    $CSS_REQUIRED[] = $css;
+
+    if (!in_array($css, $CSS_REQUIRED)) {
+        $CSS_REQUIRED[] = $css;
+    }
 }
 
 function require_javascript($js)
 {
     global $JAVASCRIPT_REQUIRED;
-    $JAVASCRIPT_REQUIRED[] = $js;
+
+    if (!in_array($js, $JAVASCRIPT_REQUIRED)) {
+        $JAVASCRIPT_REQUIRED[] = $js;
+    }
 }
