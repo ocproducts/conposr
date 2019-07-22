@@ -43,7 +43,7 @@ function get_file_base()
 
     static $file_base = null;
     if ($file_base === null) {
-        $file_base = dirname(__DIR__);
+        $file_base = dirname(dirname(__DIR__));
     }
     return $file_base;
 }
