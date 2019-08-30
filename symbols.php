@@ -49,7 +49,7 @@ function ecv($escaped, $type, $name, $param)
                 }
             }
 
-            fatal_exit('Missing symbol ' . $name);
+            $value = '[Missing symbol ' . $name . ']';
         }
 
         return $value;
