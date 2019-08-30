@@ -25,7 +25,7 @@ function get_base_url()
     $base_url = get_option('base_url');
     if ($base_url === null) {
         $protocol = tacit_https() ? 'https' : 'http';
-        $base_url = $protocol . '://' . $_SERVER['HTTP_HOST'];
+        $base_url = $protocol . '://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost');
     }
     return $base_url;
 }
@@ -33,8 +33,10 @@ function get_base_url()
 function get_self_url_easy()
 {
     $protocol = tacit_https() ? 'https' : 'http';
-    $self_url = $protocol . '://' . $_SERVER['HTTP_HOST'];
-    $self_url .= $_SERVER['REQUEST_URI'];
+    $self_url = $protocol . '://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost');
+    if (isset($_SERVER['REQUEST_URI'])) {
+        $self_url .= $_SERVER['REQUEST_URI'];
+    }
     return $self_url;
 }
 
