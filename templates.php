@@ -19,6 +19,7 @@ function globalise($title, $middle)
 function inform_exit($text)
 {
     require_code('failure');
+    set_throw_errors(false);
     _generic_exit($text, 'INFORM_SCREEN');
 }
 
