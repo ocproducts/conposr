@@ -749,6 +749,32 @@ function cms_ob_end_clean()
     }
 }
 
+/**
+ * Check if a string starts with a substring.
+ *
+ * @param  string $haystack The haystack
+ * @param  string $needle The needle
+ * @return boolean Whether the haystack starts with the needle
+ */
+function starts_with($haystack, $needle)
+{
+    $length = strlen($needle);
+    return (substr($haystack, 0, $length) === $needle);
+}
+
+/**
+ * Check if a string ends with a substring.
+ *
+ * @param  string $haystack The haystack
+ * @param  string $needle The needle
+ * @return boolean Whether the haystack ends with the needle
+ */
+function ends_with($haystack, $needle)
+{
+    $length = strlen($needle);
+    return ($length === 0) || (substr($haystack, -$length) === $needle);
+}
+
 function cms_mb_strlen($in)
 {
     if (function_exists('mb_strlen')) {
