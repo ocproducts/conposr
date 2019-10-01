@@ -17,6 +17,7 @@ if (function_exists('error_get_last')) {
     register_shutdown_function('catch_fatal_errors');
 }
 
+define('UTF8_BOM', "\xEF\xBB\xBF");
 define('URL_CONTENT_REGEXP', '\w\-\x80-\xFF'); // PHP is done using ASCII (don't use the 'u' modifier). Note this doesn't include dots, this is intentional as they can cause problems in filenames
 
 require_code('config');
@@ -857,11 +858,7 @@ function unixify_line_format($in)
         return $in;
     }
 
-    static $bom = null;
-    if ($bom === null) {
-        $bom = chr(0xEF) . chr(0xBB) . chr(0xBF);
-    }
-    if (substr($in, 0, 3) == $bom) {
+    if (substr($in, 0, 3) === UTF8_BOM) {
         $in = substr($in, 3);
     }
 
